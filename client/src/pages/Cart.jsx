@@ -5,6 +5,14 @@ import Announcement from '../components/Announcement'
 import Footer from "../components/Footer" 
 import { Add, Remove } from "@material-ui/icons"
 import { mobile } from "../responsive"
+import { useSelector } from "react-redux"
+import StripeCheckout from "react-stripe-checkout"
+import { useEffect, useState } from "react"
+import { userRequest } from "../requestMethods"
+import { useHistory } from "react-router"
+
+const KEY = process.env.REACT_APP_STRIPE;
+
 const Container = styled.div``
 const Wrapper = styled.div`
 padding: 20px;
@@ -137,6 +145,26 @@ font-weight: 600;
 `
 
 export default function Cart() {
+ const cart = useSelector((state) => state.cart);
+  const [stripeToken, setStripeToken] = useState(null);
+  const history = useHistory();
+
+  const onToken = (token) => {
+    setStripeToken(token);
+  };
+console.log(cart.total * 100)
+  useEffect(() => {
+    const makeRequest = async () => {
+      try {
+        const res = await userRequest.post("/checkout/payment", {
+          tokenId: stripeToken.id,
+          amount: cart.total * 100,
+        });
+        history.push("/success", { data: res.data });
+      } catch {}
+    };
+    stripeToken && makeRequest();
+  }, [stripeToken, cart.total, history]);
     return (
         <Container>
             <Navbar/>
@@ -153,46 +181,31 @@ export default function Cart() {
              </Top>
              <Bottom>
                  <Info>
-                     <Product>
+                    { cart.products.map(product => (
+                    <>
+                    <Product key={product._id}>
                          <ProductDetail>
-                        <Image src="https://images.pexels.com/photos/6046205/pexels-photo-6046205.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500" />
+                        <Image src={product.img} />
                         <Details>
-                            <ProdutName><b>Product</b>T-shirt</ProdutName>
-                            <ProdutId><b>ID: </b>092847725</ProdutId>
-                            <ProductColor color="black"/>
-                            <ProductSize><b>Size: </b>XS</ProductSize>
+                            <ProdutName><b>Product</b>{product.title}</ProdutName>
+                            <ProdutId><b>ID: </b>{product._id}</ProdutId>
+                            <ProductColor color={product.color}/>
+                            <ProductSize><b>Size: </b>{product.size}</ProductSize>
                         </Details>
                          </ProductDetail>
                          <PriceDetail>
                             <PoductAmountContainer>
                                 <Add/>
-                                <ProductAmount>2</ProductAmount>
+                                <ProductAmount>{product.quantity}</ProductAmount>
                                 <Remove/>
                             </PoductAmountContainer>
-                            <ProductPrice>$30</ProductPrice>
+                            <ProductPrice>${product.price * product.quantity}</ProductPrice>
                          </PriceDetail>
                      </Product>
-                <Hr/>
-                     <Product>
-                         <ProductDetail>
-                        <Image src="https://images.pexels.com/photos/1537671/pexels-photo-1537671.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500" />
-                        <Details>
-                            <ProdutName><b>Product</b>Shoes</ProdutName>
-                            <ProdutId><b>ID: </b>0929647725</ProdutId>
-                            <ProductColor color="green"/>
-                            <ProductSize><b>Size: </b>37.5</ProductSize>
-                        </Details>
-                         </ProductDetail>
-                         <PriceDetail>
-                            <PoductAmountContainer>
-                                <Add/>
-                                <ProductAmount>2</ProductAmount>
-                                <Remove/>
-                            </PoductAmountContainer>
-                            <ProductPrice>$30</ProductPrice>
-                         </PriceDetail>
-                     </Product>
-
+                      <Hr/>
+                      </>
+                     ))}
+            
                  </Info>
                  <Summary>
                      <SummaryTitle>Order Summary</SummaryTitle>
@@ -200,7 +213,7 @@ export default function Cart() {
                          <SummaryItemText>
                              Subtotal: 
                          </SummaryItemText>
-                         <SummaryItemPrice>$ 80</SummaryItemPrice>
+                         <SummaryItemPrice>$ {cart.total}</SummaryItemPrice>
                      </SummaryItem>
 
                       <SummaryItem>
@@ -221,9 +234,20 @@ export default function Cart() {
                          <SummaryItemText type="total">
                              Total: 
                          </SummaryItemText>
-                         <SummaryItemPrice>$ 80</SummaryItemPrice>
+                         <SummaryItemPrice>$ {cart.total}</SummaryItemPrice>
                      </SummaryItem>
-                     <Button>CHECKOUT NOW</Button>
+                   <StripeCheckout
+              name="Thank you"
+              image=""
+              billingAddress
+              shippingAddress
+              description={`Your total is $${cart.total}`}
+              amount={cart.total * 100}
+              token={onToken}
+              stripeKey={KEY}
+            >
+              <Button>CHECKOUT NOW</Button>
+            </StripeCheckout>
                  </Summary>
              </Bottom>
          </Wrapper>
