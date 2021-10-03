@@ -12,7 +12,14 @@ import {
 } from "react-router-dom";
 import Success from "./pages/Success";
 import { useSelector } from "react-redux";
-
+import UserList from "./pages/userList/UserList";
+import NewUser from "./pages/newUser/NewUser";
+// import ProductList from "./pages/productList/ProductList"
+import NewProduct from "./pages/newProduct/NewProduct";
+import HomeAdmin from "./pages/home/HomeAdmin"
+import ProductListAdmin from "./pages/productListAdmin/ProductListAdmin";
+import ProductAdmin from "./pages/productAdmin/ProductAdmin";
+import User from "./pages/user/User"
 function App() {
   const user = useSelector(state=> state.user.currentUser);
   return (
@@ -48,6 +55,32 @@ function App() {
             <Register/>
           }
           </Route>
+          <Route path="/user/:userId">
+           { user? <User/> :<Redirect to="/"/>}
+          </Route>
+          {user &&  <>
+        <Route  path="/admin">
+        { user.isAdmin? <HomeAdmin/> :<Redirect to="/"/>}
+        </Route>
+        <Route path="/users">
+          { user.isAdmin?  <UserList/>:<Redirect to="/"/>}
+          </Route>
+           <Route path="/newuser">
+           {user.isAdmin?  <NewUser/> :<Redirect to="/"/>}
+          </Route>
+           <Route path="/adminprod">
+           {user.isAdmin?  <ProductListAdmin/> :<Redirect to="/"/>}
+          </Route>
+          <Route path="/newproduct">
+           { user.isAdmin? <NewProduct/> :<Redirect to="/"/>}
+          </Route>
+          <Route path="/productadmin/:productId">
+           {user.isAdmin? <ProductAdmin/> :<Redirect to="/"/>}
+          </Route>
+        
+          </>
+          }
+        
         </Switch>
       </Router>
       

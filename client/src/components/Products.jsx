@@ -53,9 +53,9 @@ useEffect(() => {
     return (
         <Container>
             { cat ? filteredProducts.map(item=>(
-                <Product item={item} key={item.id}/>
+                <Product item={item} key={item._id}/>
             )): products.slice(0, 8).map(item=>(
-                <Product item={item} key={item.id}/>
+                <Product item={item} key={item._id}/>
             ))}
         </Container>
     )

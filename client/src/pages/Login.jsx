@@ -1,6 +1,7 @@
 
 import { useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
+import { useHistory } from "react-router"
 import styled from "styled-components"
 import { login } from "../redux/apiCalls"
 import { mobile } from "../responsive"
@@ -67,10 +68,12 @@ export default function Login() {
     const [username, setUsername] =useState("");
     const [password, setPassword] =useState("");
     const dispatch = useDispatch();
-    const {isFeatching, error} = useSelector((state)=>state.user)
+    const {isFeatching, error} = useSelector((state)=>state.user);
+     const history = useHistory();
     const handleClick = (e)=>{
         e.preventDefault();
         login(dispatch, {username, password});
+        history.push("/")
     }
     return (
         <Container>
