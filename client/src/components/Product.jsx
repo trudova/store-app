@@ -66,19 +66,19 @@ export default function Product({item}) {
         <Container>
            <Circle/>
            <Image src={item.img} /> 
+                   <Link to={`/product/${item._id}`} className="link" >
            <Info>
                <Icon>
                    <ShoppingCartOutlined/>
                </Icon>
                <Icon>
-                   <Link to={`/product/${item._id}`} className="link" >
                    <Search/>
-                   </Link>
                </Icon>
                <Icon>
                    <FavoriteBorder/>
                </Icon>
            </Info>
+                   </Link>
         </Container>
     )
 }

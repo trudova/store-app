@@ -3,8 +3,9 @@ import styled from "styled-components"
 import {Search, ShoppingCartOutlined} from "@material-ui/icons"
 import { Badge } from '@material-ui/core'
 import {mobile} from "../responsive"
-import {useSelector} from "react-redux"
+import {useDispatch, useSelector} from "react-redux"
 import { Link } from 'react-router-dom'
+import { logout } from '../redux/userRedux'
 const Container = styled.div`
 height: 60px;
 ${mobile({height: "50px"})}
@@ -54,14 +55,16 @@ justify-content: flex-end;
  ${mobile({ flex: 2, justifyContent: "center" })}
 `
 const MenuItem = styled.div`
-font-size: 1px;
+font-size: 1rem;
 cursor: pointer;
 margin-left: 25px;
 ${mobile({ fontSize: "12px", marginLeft: "10px" })}
 `
 function Navbar() {
     const quantity = useSelector(state => state.cart.quantity);
- 
+  const user = useSelector(state=> state.user.currentUser);
+  const dispatch = useDispatch();
+ console.log(user)
     return (
         <Container>
            <Wrapper>
@@ -76,12 +79,18 @@ function Navbar() {
                    </Left>
                <Center>
                    <Logo>
+                       <Link to="/" className="link">
                     FLEA MARKET.
+                    </Link>
                     </Logo>
                 </Center>
                <Right>
-                   <MenuItem>REGISTER</MenuItem>
-                   <MenuItem>SIGN IN</MenuItem>
+                  {! user? 
+                  <>
+                  <MenuItem>REGISTER</MenuItem>
+                   <MenuItem> <Link to="/login" className="link"> SIGN IN</Link></MenuItem>
+                   </> :  <MenuItem onClick={()=>dispatch(logout())}>LOGOUT</MenuItem>}
+                   {user?.isAdmin && <Link to="/admin">admin</Link>}
                    <Link to="/cart" className="link">
                    <MenuItem> <Badge badgeContent={quantity} color="primary">
                        <ShoppingCartOutlined/>
